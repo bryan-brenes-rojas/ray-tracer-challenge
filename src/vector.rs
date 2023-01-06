@@ -35,6 +35,14 @@ impl Vector {
     pub fn dot_product(&self, other: &Vector) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
+
+    pub fn cross_product(&self, other: &Vector) -> Vector {
+        Vector::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
 }
 
 // vector + vector
@@ -209,5 +217,23 @@ mod tests {
         let v2 = Vector::new(2.0, 3.0, 4.0);
         let dot_product = v1.dot_product(&v2);
         assert_eq!(dot_product, 20.0);
+    }
+
+    #[test]
+    fn should_be_able_to_get_the_cross_product() {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 3.0, 4.0);
+        let dot_product = v1.cross_product(&v2);
+        let dot_product_2 = v2.cross_product(&v1);
+
+        assert_eq!(dot_product.x, -1.0);
+        assert_eq!(dot_product.y, 2.0);
+        assert_eq!(dot_product.z, -1.0);
+        assert_eq!(dot_product.w, 0.0);
+
+        assert_eq!(dot_product_2.x, 1.0);
+        assert_eq!(dot_product_2.y, -2.0);
+        assert_eq!(dot_product_2.z, 1.0);
+        assert_eq!(dot_product_2.w, 0.0);
     }
 }
