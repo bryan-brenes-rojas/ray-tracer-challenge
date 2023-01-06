@@ -1,11 +1,11 @@
 use crate::point::Point;
+#[allow(unused_imports)]
+use crate::utils::EPSILON;
 use std::ops::Add;
+use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Neg;
 use std::ops::Sub;
-use std::ops::Div;
-#[allow(unused_imports)]
-use crate::utils::EPSILON;
 
 #[derive(Debug)]
 pub struct Vector {
@@ -30,6 +30,10 @@ impl Vector {
             magnitude = 1.0;
         }
         Vector::new(self.x / magnitude, self.y / magnitude, self.z / magnitude)
+    }
+
+    pub fn dot_product(&self, other: &Vector) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z
     }
 }
 
@@ -197,5 +201,13 @@ mod tests {
         let normalized_vector = v.normalize();
         let diff = 1.0 - normalized_vector.magnitude();
         assert!(diff.abs() < EPSILON);
+    }
+
+    #[test]
+    fn should_be_able_to_get_the_dot_product() {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 3.0, 4.0);
+        let dot_product = v1.dot_product(&v2);
+        assert_eq!(dot_product, 20.0);
     }
 }
