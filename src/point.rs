@@ -75,4 +75,37 @@ mod tests {
         assert_eq!(point.y, -4.0);
         assert_eq!(point.z, 5.0);
     }
+
+    #[test]
+    fn point_plus_vector_is_point() {
+        let p = Point::new(1.0, 2.0, 3.0);
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let new_point = &p + &v;
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 4.0);
+        assert_eq!(new_point.z, 6.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn point_minus_point_is_vector() {
+        let p1 = Point::new(1.0, 2.0, 3.0);
+        let p2 = Point::new(1.0, 2.0, 3.0);
+        let new_vector = &p1 - &p2;
+        assert_eq!(new_vector.x, 0.0);
+        assert_eq!(new_vector.y, 0.0);
+        assert_eq!(new_vector.z, 0.0);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn point_minus_vector_is_point() {
+        let p = Point::new(1.0, 2.0, 3.0);
+        let v = Vector::new(2.0, 4.0, 6.0);
+        let new_point = &p - &v;
+        assert_eq!(new_point.x, -1.0);
+        assert_eq!(new_point.y, -2.0);
+        assert_eq!(new_point.z, -3.0);
+        assert_eq!(new_point.w, 1.0);
+    }
 }

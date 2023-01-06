@@ -1,6 +1,6 @@
+use crate::point::Point;
 use std::ops::Add;
 use std::ops::Sub;
-use crate::point::Point;
 
 #[derive(Debug)]
 pub struct Vector {
@@ -74,5 +74,38 @@ mod tests {
         assert_eq!(vector.x, 2.0);
         assert_eq!(vector.y, -4.0);
         assert_eq!(vector.z, 5.0);
+    }
+
+    #[test]
+    fn vector_plus_vector_is_vector() {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(1.0, 2.0, 3.0);
+        let new_vector = &v1 + &v2;
+        assert_eq!(new_vector.x, 2.0);
+        assert_eq!(new_vector.y, 4.0);
+        assert_eq!(new_vector.z, 6.0);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn vector_plus_point_is_point() {
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let p = Point::new(1.0, 2.0, 3.0);
+        let new_point = &v + &p;
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 4.0);
+        assert_eq!(new_point.z, 6.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn vector_minus_vector_is_point() {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 4.0, 6.0);
+        let new_vector = &v1 - &v2;
+        assert_eq!(new_vector.x, -1.0);
+        assert_eq!(new_vector.y, -2.0);
+        assert_eq!(new_vector.z, -3.0);
+        assert_eq!(new_vector.w, 0.0);
     }
 }
