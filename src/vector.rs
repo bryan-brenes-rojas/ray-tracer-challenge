@@ -1,7 +1,11 @@
 use crate::point::Point;
 use std::ops::Add;
+use std::ops::Mul;
 use std::ops::Neg;
 use std::ops::Sub;
+use std::ops::Div;
+#[allow(unused_imports)]
+use crate::utils::EPSILON;
 
 #[derive(Debug)]
 pub struct Vector {
@@ -14,6 +18,18 @@ pub struct Vector {
 impl Vector {
     pub fn new(x: f32, y: f32, z: f32) -> Vector {
         Vector { x, y, z, w: 0.0 }
+    }
+
+    pub fn magnitude(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).powf(0.5)
+    }
+
+    pub fn normalize(&self) -> Vector {
+        let mut magnitude = self.magnitude();
+        if magnitude == 0.0 {
+            magnitude = 1.0;
+        }
+        Vector::new(self.x / magnitude, self.y / magnitude, self.z / magnitude)
     }
 }
 
@@ -64,6 +80,25 @@ impl Neg for &Vector {
     type Output = Vector;
     fn neg(self) -> Vector {
         Vector::new(0.0 - self.x, 0.0 - self.y, 0.0 - self.z)
+    }
+}
+
+// vector * scalar
+impl Mul<f32> for &Vector {
+    type Output = Vector;
+    fn mul(self, scalar: f32) -> Self::Output {
+        Vector::new(self.x * scalar, self.y * scalar, self.z * scalar)
+    }
+}
+
+// vector / scalar
+impl Div<f32> for &Vector {
+    type Output = Vector;
+    fn div(self, scalar: f32) -> Self::Output {
+        if scalar == 0.0 {
+            panic!("Dividing by 0");
+        }
+        Vector::new(self.x / scalar, self.y / scalar, self.z / scalar)
     }
 }
 
@@ -126,5 +161,41 @@ mod tests {
         assert_eq!(new_vector.y, 0.0);
         assert_eq!(new_vector.z, -3.0);
         assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_be_able_to_multiply_a_vector_by_scalar() {
+        let v = Vector::new(1.0, 0.0, 3.0);
+        let new_vector = &v * 3.0;
+        assert_eq!(new_vector.x, 3.0);
+        assert_eq!(new_vector.y, 0.0);
+        assert_eq!(new_vector.z, 9.0);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_be_able_to_divide_a_vector_by_scalar() {
+        let v = Vector::new(1.0, 0.0, 3.0);
+        let new_vector = &v / 2.0;
+        assert_eq!(new_vector.x, 0.5);
+        assert_eq!(new_vector.y, 0.0);
+        assert_eq!(new_vector.z, 1.5);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_be_able_to_get_the_magnitude() {
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let magnitude = v.magnitude();
+        let base: f32 = 14.0;
+        assert_eq!(magnitude, base.powf(0.5));
+    }
+
+    #[test]
+    fn should_be_able_to_normalize_vector() {
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let normalized_vector = v.normalize();
+        let diff = 1.0 - normalized_vector.magnitude();
+        assert!(diff.abs() < EPSILON);
     }
 }
