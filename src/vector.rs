@@ -1,5 +1,6 @@
 use crate::point::Point;
 use std::ops::Add;
+use std::ops::Neg;
 use std::ops::Sub;
 
 #[derive(Debug)]
@@ -58,6 +59,14 @@ impl Sub<&Vector> for &Vector {
     }
 }
 
+// -vector
+impl Neg for &Vector {
+    type Output = Vector;
+    fn neg(self) -> Vector {
+        Vector::new(0.0 - self.x, 0.0 - self.y, 0.0 - self.z)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,6 +114,16 @@ mod tests {
         let new_vector = &v1 - &v2;
         assert_eq!(new_vector.x, -1.0);
         assert_eq!(new_vector.y, -2.0);
+        assert_eq!(new_vector.z, -3.0);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_be_able_to_negate_a_vector() {
+        let v = Vector::new(1.0, 0.0, 3.0);
+        let new_vector = -&v;
+        assert_eq!(new_vector.x, -1.0);
+        assert_eq!(new_vector.y, 0.0);
         assert_eq!(new_vector.z, -3.0);
         assert_eq!(new_vector.w, 0.0);
     }
