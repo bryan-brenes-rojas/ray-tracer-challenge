@@ -13,6 +13,23 @@ impl Color {
     pub fn new(r: f32, g: f32, b: f32) -> Self {
         Color { r, g, b }
     }
+
+    pub fn scale(&self, factor: f32) -> Color {
+        Color {
+            r: (self.r * factor).clamp(0.0, factor),
+            g: (self.g * factor).clamp(0.0, factor),
+            b: (self.b * factor).clamp(0.0, factor),
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        format!(
+            "{} {} {}",
+            self.r as i64,
+            self.g as i64,
+            self.b as i64,
+        )
+    }
 }
 
 impl Add<&Color> for &Color {

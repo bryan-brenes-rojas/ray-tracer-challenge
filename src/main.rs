@@ -1,13 +1,13 @@
+mod canvas;
+mod color;
 mod point;
 mod utils;
 mod vector;
-mod color;
-mod canvas;
 
+use canvas::Canvas;
+use color::Color;
 use point::Point;
 use vector::Vector;
-use color::Color;
-use canvas::Canvas;
 
 struct Projectile {
     position: Point,
@@ -20,7 +20,10 @@ struct Env {
 }
 
 fn main() {
-    let canvas = Canvas::new(10,20);
+    let mut canvas = Canvas::new(100, 100);
+    canvas.write_pixel(&Color::new(1.0, 0.5, 0.3), 0, 0);
+    canvas.write_pixel(&Color::new(1.0, 0.5, 0.3), 100, 100);
+    canvas.to_ppm();
 
     let mut projectile = Projectile {
         position: Point::new(0.0, 1.0, 0.0),
