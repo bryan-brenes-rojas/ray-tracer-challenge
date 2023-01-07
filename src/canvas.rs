@@ -18,9 +18,10 @@ impl Canvas {
     }
 
     pub fn write_pixel(&mut self, color: &Color, x: usize, y: usize) {
-        let x_coord = x.clamp(0, usize::from(self.width - 1));
-        let y_coord = y.clamp(0, usize::from(self.height - 1));
-        self.pixels[y_coord][x_coord] = *color;
+        if x >= self.width as usize || y >= self.height as usize {
+            return;
+        }
+        self.pixels[y][x] = *color;
     }
 
     pub fn get_pixel(&self, x: usize, y: usize) -> Color {

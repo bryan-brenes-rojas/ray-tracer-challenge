@@ -32,14 +32,13 @@ fn main() {
     };
 
     while projectile.position.y >= 0.0 {
-        projectile = tick(&env, &projectile);
-        println!("Current position {:?}", projectile.position);
         paint_square(
             &mut canvas,
-            (projectile.position.x * 15.0) as usize,
-            350 - (projectile.position.y * 15.0) as usize,
-            2,
-        )
+            (projectile.position.x * 15.0) as i32,
+            350 - (projectile.position.y * 15.0) as i32,
+            3,
+        );
+        projectile = tick(&env, &projectile);
     }
     canvas.to_ppm();
 }
@@ -50,15 +49,15 @@ fn tick(env: &Env, proj: &Projectile) -> Projectile {
     Projectile { position, velocity }
 }
 
-fn paint_square(canvas: &mut Canvas, x: usize, y: usize, size: usize) {
-    let initial_pos_x = (x - size).clamp(0, 350);
-    let initial_pos_y = (y - size).clamp(0, 350);
+fn paint_square(canvas: &mut Canvas, x: i32, y: i32, size: i32) {
+    let initial_pos_x = x - size;
+    let initial_pos_y = y - size;
     let final_pos_x = initial_pos_x + (2 * size + 1);
     let final_pos_y = initial_pos_y + (2 * size + 1);
 
     for row_index in initial_pos_y..final_pos_y {
         for col_index in initial_pos_x..final_pos_x {
-            canvas.write_pixel(&Color::new(1.0, 0.0, 0.0), col_index, row_index);
+            canvas.write_pixel(&Color::new(1.0, 0.0, 0.0), col_index as usize, row_index as usize);
         }
     }
 }
