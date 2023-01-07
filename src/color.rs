@@ -2,7 +2,7 @@ use std::ops::Add;
 use std::ops::Mul;
 use std::ops::Sub;
 
-#[derive(Debug)]
+#[derive(Debug, Copy)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -60,6 +60,12 @@ impl Mul<&Color> for &Color {
             g: self.g * other.g,
             b: self.b * other.b,
         }
+    }
+}
+
+impl Clone for Color {
+    fn clone(&self) -> Self {
+        *self
     }
 }
 
