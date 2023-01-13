@@ -1,5 +1,6 @@
 mod canvas;
 mod color;
+mod matrix;
 mod point;
 mod utils;
 mod vector;
@@ -7,7 +8,9 @@ mod vector;
 use canvas::Canvas;
 use color::Color;
 use point::Point;
+use rand::Rng;
 use vector::Vector;
+use matrix::*;
 
 struct Projectile {
     position: Point,
@@ -20,6 +23,10 @@ struct Env {
 }
 
 fn main() {
+    // let m = create_matrix(3,3);
+}
+
+fn projectile_drawing() {
     let mut canvas = Canvas::new(350, 350);
 
     let mut projectile = Projectile {
@@ -55,9 +62,19 @@ fn paint_square(canvas: &mut Canvas, x: i32, y: i32, size: i32) {
     let final_pos_x = initial_pos_x + (2 * size + 1);
     let final_pos_y = initial_pos_y + (2 * size + 1);
 
+    let color = get_random_color();
     for row_index in initial_pos_y..final_pos_y {
         for col_index in initial_pos_x..final_pos_x {
-            canvas.write_pixel(&Color::new(1.0, 0.0, 0.0), col_index as usize, row_index as usize);
+            canvas.write_pixel(&color, col_index as usize, row_index as usize);
         }
     }
+}
+
+fn get_random_color() -> Color {
+    let mut rng = rand::thread_rng();
+    Color::new(
+        rng.gen_range(0.0..1.0),
+        rng.gen_range(0.0..1.0),
+        rng.gen_range(0.0..1.0),
+    )
 }

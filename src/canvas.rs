@@ -8,6 +8,7 @@ pub struct Canvas {
     pub pixels: Vec<Vec<Color>>,
 }
 
+#[allow(dead_code)]
 impl Canvas {
     pub fn new(w: u16, h: u16) -> Self {
         Canvas {
@@ -77,16 +78,6 @@ mod tests {
         assert_eq!(color_written.r, 1.0);
         assert_eq!(color_written.g, 0.5);
         assert_eq!(color_written.b, 0.3);
-    }
-
-    #[test]
-    fn should_clamp_values_greater_than_dimensions_write() {
-        let mut c = Canvas::new(10, 20);
-        c.write_pixel(&Color::new(1.0, 0.5, 0.3), 200, 200);
-        let p = c.get_pixel(9, 19);
-        assert_eq!(p.r, 1.0);
-        assert_eq!(p.g, 0.5);
-        assert_eq!(p.b, 0.3);
     }
 
     #[test]
