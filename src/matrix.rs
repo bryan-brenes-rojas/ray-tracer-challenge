@@ -29,6 +29,20 @@ impl Matrix {
         }
     }
 
+    pub fn identity(size: usize) -> Matrix {
+        let mut matrix = Matrix::new(size, size);
+        for r in 0..size {
+            for c in 0..size {
+                if r == c {
+                    matrix.write_cell(r, c, 1.0)
+                } else {
+                    matrix.write_cell(r, c, 0.0)
+                }
+            }
+        }
+        matrix
+    }
+
     pub fn get_cell(&self, row: usize, col: usize) -> f32 {
         self.matrix[row][col]
     }
@@ -63,6 +77,16 @@ impl Matrix {
             vec.push(self.get_cell(row_index, col_index));
         }
         return vec;
+    }
+
+    pub fn transpose(&self) -> Matrix {
+        let mut new_matrix = Matrix::new(self.col_count, self.row_count);
+        for col_index in 0..self.col_count {
+            for row_index in 0..self.row_count {
+                new_matrix.write_cell(col_index, row_index, self.get_cell(row_index, col_index))
+            }
+        }
+        new_matrix
     }
 }
 
@@ -299,5 +323,30 @@ mod tests {
         assert_eq!(new_matrix.get_cell(0, 1), 64.0);
         assert_eq!(new_matrix.get_cell(1, 0), 139.0);
         assert_eq!(new_matrix.get_cell(1, 1), 154.0);
+    }
+
+    #[test]
+    fn should_transpose() {
+        let mut m1 = Matrix::new(2, 3);
+        m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
+        let new_matrix = m1.transpose();
+        assert_eq!(new_matrix.row_count, 3);
+        assert_eq!(new_matrix.col_count, 2);
+
+        assert_eq!(new_matrix.get_cell(0, 0), 1.0);
+        assert_eq!(new_matrix.get_cell(0, 1), 4.0);
+        assert_eq!(new_matrix.get_cell(1, 0), 2.0);
+        assert_eq!(new_matrix.get_cell(1, 1), 5.0);
+        assert_eq!(new_matrix.get_cell(2, 0), 3.0);
+        assert_eq!(new_matrix.get_cell(2, 1), 6.0);
+    }
+
+    #[test]
+    fn get_identity_matrix() {
+        let matrix = Matrix::identity(2);
+        assert_eq!(matrix.get_cell(0, 0), 1.0);
+        assert_eq!(matrix.get_cell(1, 1), 1.0);
+        assert_eq!(matrix.get_cell(0, 1), 0.0);
+        assert_eq!(matrix.get_cell(1, 0), 0.0);
     }
 }
