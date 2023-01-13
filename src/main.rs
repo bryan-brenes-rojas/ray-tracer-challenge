@@ -7,10 +7,10 @@ mod vector;
 
 use canvas::Canvas;
 use color::Color;
+use matrix::*;
 use point::Point;
 use rand::Rng;
 use vector::Vector;
-use matrix::*;
 
 struct Projectile {
     position: Point,
@@ -23,7 +23,12 @@ struct Env {
 }
 
 fn main() {
-    // let m = create_matrix(3,3);
+    let mut m1 = Matrix::new(2, 3);
+    let mut m2 = Matrix::new(3, 2);
+    m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
+    m2.patch(vec![vec![7.0, 8.0], vec![9.0, 10.0], vec![11.0, 12.0]]);
+    let new_matrix = &m1 * &m2;
+    println!("{:#?}", new_matrix)
 }
 
 fn projectile_drawing() {

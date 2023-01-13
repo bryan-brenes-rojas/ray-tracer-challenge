@@ -1,6 +1,7 @@
 use crate::utils::EPSILON;
 use std::cmp::PartialEq;
 use std::ops::Add;
+use std::ops::Mul;
 use std::ops::Sub;
 
 #[derive(Debug)]
@@ -47,6 +48,22 @@ impl Matrix {
             }
         }
     }
+
+    pub fn get_col(&self, col_index: usize) -> Vec<f32> {
+        let mut vec: Vec<f32> = Vec::new();
+        for row_index in 0..self.row_count {
+            vec.push(self.get_cell(row_index, col_index));
+        }
+        return vec;
+    }
+
+    pub fn get_row(&self, row_index: usize) -> Vec<f32> {
+        let mut vec: Vec<f32> = Vec::new();
+        for col_index in 0..self.col_count {
+            vec.push(self.get_cell(row_index, col_index));
+        }
+        return vec;
+    }
 }
 
 impl Add<&Matrix> for &Matrix {
@@ -89,6 +106,30 @@ impl Sub<&Matrix> for &Matrix {
                     col_index,
                     self.get_cell(row_index, col_index) - other.get_cell(row_index, col_index),
                 );
+            }
+        }
+        new_matrix
+    }
+}
+
+impl Mul<&Matrix> for &Matrix {
+    type Output = Matrix;
+
+    fn mul(self, other: &Matrix) -> Matrix {
+        if self.col_count != other.row_count || self.row_count != other.col_count {
+            panic!("Matrices of wrong dimensions mxn - nxm");
+        }
+        let mut new_matrix = Matrix::new(self.row_count, other.col_count);
+        for row_index in 0..self.row_count {
+            for col_index in 0..other.col_count {
+                let row = self.get_row(row_index);
+                let col = other.get_col(col_index);
+
+                let mut new_value = 0.0;
+                for i in 0..row.len() {
+                    new_value += row[i] * col[i];
+                }
+                new_matrix.write_cell(row_index, col_index, new_value);
             }
         }
         new_matrix
@@ -223,5 +264,40 @@ mod tests {
 
         let cmp = &m1 != &m2;
         assert_eq!(cmp, false);
+    }
+
+    #[test]
+    fn should_return_row() {
+        let mut m = Matrix::new(2, 3);
+        m.patch(vec![vec![1.0, 2.0, 3.0], vec![2.0, 3.0, 4.0]]);
+        let row = m.get_row(1);
+        assert_eq!(row[0], 2.0);
+        assert_eq!(row[1], 3.0);
+        assert_eq!(row[2], 4.0);
+    }
+
+    #[test]
+    fn should_return_col() {
+        let mut m = Matrix::new(2, 3);
+        m.patch(vec![vec![1.0, 2.0, 3.0], vec![2.0, 3.0, 4.0]]);
+        let row = m.get_col(1);
+        assert_eq!(row[0], 2.0);
+        assert_eq!(row[1], 3.0);
+    }
+
+    #[test]
+    fn should_multiply_matrices() {
+        let mut m1 = Matrix::new(2, 3);
+        let mut m2 = Matrix::new(3, 2);
+        m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
+        m2.patch(vec![vec![7.0, 8.0], vec![9.0, 10.0], vec![11.0, 12.0]]);
+        let new_matrix = &m1 * &m2;
+        assert_eq!(new_matrix.row_count, 2);
+        assert_eq!(new_matrix.col_count, 2);
+
+        assert_eq!(new_matrix.get_cell(0, 0), 58.0);
+        assert_eq!(new_matrix.get_cell(0, 1), 64.0);
+        assert_eq!(new_matrix.get_cell(1, 0), 139.0);
+        assert_eq!(new_matrix.get_cell(1, 1), 154.0);
     }
 }
