@@ -96,6 +96,27 @@ impl Matrix {
         new_matrix
     }
 
+    pub fn determinant(&self) -> f32 {
+        if !self.is_square() {
+            panic!(
+                "Cofactor::matrix not squared {}x{}",
+                self.row_count, self.col_count
+            );
+        }
+        if self.row_count == 2 {
+            return self.get_cell(0, 0) * self.get_cell(1, 1)
+                - self.get_cell(0, 1) * self.get_cell(1, 0);
+        }
+
+        let mut det = 0.0;
+        for c_i in 0..self.col_count {
+            det += (-1f32).powf(0f32 + c_i as f32 + 2f32)
+                * self.get_cell(0, c_i)
+                * self.sub_matrix(0, c_i).determinant();
+        }
+        det
+    }
+
     pub fn transpose(&self) -> Matrix {
         let mut new_matrix = Matrix::new(self.col_count, self.row_count);
         for col_index in 0..self.col_count {
@@ -104,6 +125,34 @@ impl Matrix {
             }
         }
         new_matrix
+    }
+
+    fn is_square(&self) -> bool {
+        self.row_count == self.col_count
+    }
+
+    pub fn has_inverse(&self) -> bool {
+        self.determinant() != 0.0
+    }
+
+    fn co_factors_transpose_matrix(&self) -> Matrix {
+        let mut co_matrix = Matrix::new(self.row_count, self.col_count);
+        for r_i in 0..self.row_count {
+            for c_i in 0..self.col_count {
+                let co_factor = (-1f32).powf(r_i as f32 + c_i as f32 + 2.0)
+                    * self.sub_matrix(r_i, c_i).determinant();
+                co_matrix.write_cell(c_i, r_i, co_factor);
+            }
+        }
+        co_matrix
+    }
+
+    pub fn inverse(&self) -> Matrix {
+        if !self.has_inverse() {
+            panic!("Inverse::matrix doesn't have inverse");
+        }
+        let co_factors_transpose_matrix = self.co_factors_transpose_matrix();
+        &co_factors_transpose_matrix * (1f32 / self.determinant())
     }
 }
 
@@ -417,5 +466,102 @@ mod tests {
         assert_eq!(new_matrix.get_cell(0, 1), 3.0);
         assert_eq!(new_matrix.get_cell(1, 0), 7.0);
         assert_eq!(new_matrix.get_cell(1, 1), 9.0);
+    }
+
+    #[test]
+    fn should_get_determinant_2x2() {
+        let mut m1 = Matrix::new(2, 2);
+        m1.patch(vec![vec![3.0, 8.0], vec![4.0, 6.0]]);
+        assert_eq!(m1.determinant(), -14.0);
+    }
+
+    #[test]
+    fn should_get_determinant_3x3() {
+        let mut m1 = Matrix::new(3, 3);
+        m1.patch(vec![
+            vec![6.0, 1.0, 1.0],
+            vec![4.0, -2.0, 5.0],
+            vec![2.0, 8.0, 7.0],
+        ]);
+        assert_eq!(m1.determinant(), -306.0);
+    }
+
+    #[test]
+    fn should_get_determinant_4x4() {
+        let mut m1 = Matrix::new(4, 4);
+        m1.patch(vec![
+            vec![6.0, 1.0, 1.0, 6.0],
+            vec![4.0, -2.0, 5.0, 8.0],
+            vec![2.0, 8.0, 7.0, 9.0],
+            vec![12.0, -1.0, 7.0, 7.0],
+        ]);
+        assert_eq!(m1.determinant(), 2944.0);
+    }
+
+    #[test]
+    fn should_return_if_has_inverse() {
+        let mut m_with_inverse = Matrix::new(4, 4);
+        m_with_inverse.patch(vec![
+            vec![6.0, 4.0, 4.0, 4.0],
+            vec![5.0, 5.0, 7.0, 6.0],
+            vec![4.0, -9.0, 3.0, -7.0],
+            vec![9.0, 1.0, 7.0, -6.0],
+        ]);
+        assert_eq!(m_with_inverse.determinant(), -2120.0);
+        assert_eq!(m_with_inverse.has_inverse(), true);
+    }
+
+    #[test]
+    fn should_return_if_has_no_inverse() {
+        let mut m_with_inverse = Matrix::new(4, 4);
+        m_with_inverse.patch(vec![
+            vec![-4.0, 2.0, -2.0, 3.0],
+            vec![9.0, 6.0, 2.0, 6.0],
+            vec![0.0, -5.0, 1.0, -5.0],
+            vec![0.0, 0.0, 0.0, 0.0],
+        ]);
+        assert_eq!(m_with_inverse.determinant(), 0.0);
+        assert_eq!(m_with_inverse.has_inverse(), false);
+    }
+
+    #[test]
+    fn should_get_the_inverse() {
+        let mut m1 = Matrix::new(4, 4);
+        m1.patch(vec![
+            vec![-5.0, 2.0, 6.0, -8.0],
+            vec![1.0, -5.0, 1.0, 8.0],
+            vec![7.0, 7.0, -6.0, -7.0],
+            vec![1.0, -3.0, 7.0, 4.0],
+        ]);
+        let inverse = m1.inverse();
+        let mut expected_matrix = Matrix::new(4, 4);
+        expected_matrix.patch(vec![
+            vec![0.21804512, 0.45112783, 0.24060151, -0.04511278],
+            vec![-0.8082707, -1.456767, -0.44360903, 0.52067673],
+            vec![-0.07894737, -0.22368422, -0.05263158, 0.19736843],
+            vec![-0.5225564, -0.81390977, -0.3007519, 0.30639097],
+        ]);
+        assert_eq!(inverse, expected_matrix);
+    }
+
+    #[test]
+    fn should_inverse_a_multiplication_result() {
+        let mut a = Matrix::new(4, 4);
+        a.patch(vec![
+            vec![-5.0, 2.0, 6.0, -8.0],
+            vec![1.0, -5.0, 1.0, 8.0],
+            vec![7.0, 7.0, -6.0, -7.0],
+            vec![1.0, -3.0, 7.0, 4.0],
+        ]);
+        let mut b = Matrix::new(4, 4);
+        b.patch(vec![
+            vec![6.0, 4.0, 4.0, 4.0],
+            vec![5.0, 5.0, 7.0, 6.0],
+            vec![4.0, -9.0, 3.0, -7.0],
+            vec![9.0, 1.0, 7.0, -6.0],
+        ]);
+        let c = &a * &b;
+        let c_mul_b_inverse = &c * &b.inverse();
+        assert_eq!(c_mul_b_inverse, a);
     }
 }
