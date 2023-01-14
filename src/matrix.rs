@@ -79,6 +79,23 @@ impl Matrix {
         return vec;
     }
 
+    pub fn sub_matrix(&self, row_index: usize, col_index: usize) -> Matrix {
+        let mut new_matrix = Matrix::new(self.row_count - 1, self.col_count - 1);
+        for r_i in 0..self.row_count {
+            for c_i in 0..self.col_count {
+                println!("{:#?}", self.get_cell(r_i, c_i));
+                if row_index == r_i || col_index == c_i {
+                    continue;
+                }
+
+                let cur_row = if r_i > row_index { r_i - 1 } else { r_i };
+                let cur_col = if c_i > col_index { c_i - 1 } else { c_i };
+                new_matrix.write_cell(cur_row, cur_col, self.get_cell(r_i, c_i));
+            }
+        }
+        new_matrix
+    }
+
     pub fn transpose(&self) -> Matrix {
         let mut new_matrix = Matrix::new(self.col_count, self.row_count);
         for col_index in 0..self.col_count {
@@ -154,6 +171,24 @@ impl Mul<&Matrix> for &Matrix {
                     new_value += row[i] * col[i];
                 }
                 new_matrix.write_cell(row_index, col_index, new_value);
+            }
+        }
+        new_matrix
+    }
+}
+
+impl Mul<f32> for &Matrix {
+    type Output = Matrix;
+
+    fn mul(self, other: f32) -> Matrix {
+        let mut new_matrix = Matrix::new(self.row_count, self.col_count);
+        for row_index in 0..self.row_count {
+            for col_index in 0..self.col_count {
+                new_matrix.write_cell(
+                    row_index,
+                    col_index,
+                    other * self.get_cell(row_index, col_index),
+                );
             }
         }
         new_matrix
@@ -326,6 +361,22 @@ mod tests {
     }
 
     #[test]
+    fn should_multiply_with_scalars() {
+        let mut m1 = Matrix::new(2, 3);
+        m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
+        let new_matrix = &m1 * 2.0;
+        assert_eq!(new_matrix.row_count, 2);
+        assert_eq!(new_matrix.col_count, 3);
+
+        assert_eq!(new_matrix.get_cell(0, 0), 2.0);
+        assert_eq!(new_matrix.get_cell(0, 1), 4.0);
+        assert_eq!(new_matrix.get_cell(0, 2), 6.0);
+        assert_eq!(new_matrix.get_cell(1, 0), 8.0);
+        assert_eq!(new_matrix.get_cell(1, 1), 10.0);
+        assert_eq!(new_matrix.get_cell(1, 2), 12.0);
+    }
+
+    #[test]
     fn should_transpose() {
         let mut m1 = Matrix::new(2, 3);
         m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
@@ -348,5 +399,23 @@ mod tests {
         assert_eq!(matrix.get_cell(1, 1), 1.0);
         assert_eq!(matrix.get_cell(0, 1), 0.0);
         assert_eq!(matrix.get_cell(1, 0), 0.0);
+    }
+
+    #[test]
+    fn should_get_sub_matrix() {
+        let mut m1 = Matrix::new(3, 3);
+        m1.patch(vec![
+            vec![1.0, 2.0, 3.0],
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 9.0],
+        ]);
+        let new_matrix = m1.sub_matrix(1, 1);
+        assert_eq!(new_matrix.row_count, 2);
+        assert_eq!(new_matrix.col_count, 2);
+
+        assert_eq!(new_matrix.get_cell(0, 0), 1.0);
+        assert_eq!(new_matrix.get_cell(0, 1), 3.0);
+        assert_eq!(new_matrix.get_cell(1, 0), 7.0);
+        assert_eq!(new_matrix.get_cell(1, 1), 9.0);
     }
 }

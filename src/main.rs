@@ -11,26 +11,30 @@ use matrix::*;
 use point::Point;
 use rand::Rng;
 use vector::Vector;
-
+#[allow(dead_code)]
 struct Projectile {
     position: Point,
     velocity: Vector,
 }
 
+#[allow(dead_code)]
 struct Env {
     gravity: Vector,
     wind: Vector,
 }
 
 fn main() {
-    let mut m1 = Matrix::new(2, 3);
-    let mut m2 = Matrix::new(3, 2);
-    m1.patch(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]);
-    m2.patch(vec![vec![7.0, 8.0], vec![9.0, 10.0], vec![11.0, 12.0]]);
-    let new_matrix = &m1 * &m2;
+    let mut m1 = Matrix::new(3, 3);
+    m1.patch(vec![
+        vec![1.0, 2.0, 3.0],
+        vec![4.0, 5.0, 6.0],
+        vec![7.0, 8.0, 9.0],
+    ]);
+    let new_matrix = m1.sub_matrix(1, 1);
     println!("{:#?}", new_matrix)
 }
 
+#[allow(dead_code)]
 fn projectile_drawing() {
     let mut canvas = Canvas::new(350, 350);
 
@@ -55,12 +59,14 @@ fn projectile_drawing() {
     canvas.to_ppm();
 }
 
+#[allow(dead_code)]
 fn tick(env: &Env, proj: &Projectile) -> Projectile {
     let position = &proj.position + &proj.velocity;
     let velocity = &(&proj.velocity + &env.gravity) + &env.wind;
     Projectile { position, velocity }
 }
 
+#[allow(dead_code)]
 fn paint_square(canvas: &mut Canvas, x: i32, y: i32, size: i32) {
     let initial_pos_x = x - size;
     let initial_pos_y = y - size;
@@ -75,6 +81,7 @@ fn paint_square(canvas: &mut Canvas, x: i32, y: i32, size: i32) {
     }
 }
 
+#[allow(dead_code)]
 fn get_random_color() -> Color {
     let mut rng = rand::thread_rng();
     Color::new(
