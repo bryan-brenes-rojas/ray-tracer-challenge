@@ -1,4 +1,6 @@
+use crate::point::Point;
 use crate::utils::EPSILON;
+use crate::vector::Vector;
 use std::cmp::PartialEq;
 use std::ops::Add;
 use std::ops::Mul;
@@ -91,7 +93,6 @@ impl Matrix {
         let mut new_matrix = Matrix::new(self.row_count - 1, self.col_count - 1);
         for r_i in 0..self.row_count {
             for c_i in 0..self.col_count {
-                println!("{:#?}", self.get_cell(r_i, c_i));
                 if row_index == r_i || col_index == c_i {
                     continue;
                 }
@@ -214,7 +215,7 @@ impl Mul<&Matrix> for &Matrix {
     type Output = Matrix;
 
     fn mul(self, other: &Matrix) -> Matrix {
-        if self.col_count != other.row_count || self.row_count != other.col_count {
+        if self.col_count != other.row_count {
             panic!("Matrices of wrong dimensions mxn - nxm");
         }
         let mut new_matrix = Matrix::new(self.row_count, other.col_count);
@@ -249,6 +250,34 @@ impl Mul<f32> for &Matrix {
             }
         }
         new_matrix
+    }
+}
+
+impl Mul<&Point> for &Matrix {
+    type Output = Point;
+
+    fn mul(self, p: &Point) -> Point {
+        let point_matrix = p.to_matrix();
+        let new_point_matrix = self * &point_matrix;
+        Point::new(
+            new_point_matrix.get_cell(0, 0),
+            new_point_matrix.get_cell(1, 0),
+            new_point_matrix.get_cell(2, 0),
+        )
+    }
+}
+
+impl Mul<&Vector> for &Matrix {
+    type Output = Vector;
+
+    fn mul(self, v: &Vector) -> Vector {
+        let vector_matrix = v.to_matrix();
+        let new_vector_matrix = self * &vector_matrix;
+        Vector::new(
+            new_vector_matrix.get_cell(0, 0),
+            new_vector_matrix.get_cell(1, 0),
+            new_vector_matrix.get_cell(2, 0),
+        )
     }
 }
 
@@ -579,5 +608,42 @@ mod tests {
         assert_eq!(m.get_cell(0, 3), 1.0);
         assert_eq!(m.get_cell(1, 3), 2.0);
         assert_eq!(m.get_cell(2, 3), 3.0);
+    }
+
+    #[test]
+    fn should_multiply_matrix_with_point() {
+        let m = Matrix::translation_3d(5.0, -3.0, 2.0);
+        let p = Point::new(-3.0, 4.0, 5.0);
+        let new_point = &m * &p;
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 1.0);
+        assert_eq!(new_point.z, 7.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_revert_point_translation() {
+        let m = Matrix::translation_3d(5.0, -3.0, 2.0);
+        let m_inverse = m.inverse();
+
+        let p = Point::new(-3.0, 4.0, 5.0);
+        let new_point = &m * &p;
+
+        let restoring_point = &m_inverse * &new_point;
+        assert_eq!(restoring_point.x, -3.0);
+        assert_eq!(restoring_point.y, 4.0);
+        assert_eq!(restoring_point.z, 5.0);
+        assert_eq!(restoring_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_multiply_matrix_with_vector() {
+        let m = Matrix::translation_3d(5.0, -3.0, 2.0);
+        let v = Vector::new(-3.0, 4.0, 5.0);
+        let new_vector = &m * &v;
+        assert_eq!(new_vector.x, -3.0);
+        assert_eq!(new_vector.y, 4.0);
+        assert_eq!(new_vector.z, 5.0);
+        assert_eq!(new_vector.w, 0.0);
     }
 }

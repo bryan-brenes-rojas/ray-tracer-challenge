@@ -1,3 +1,4 @@
+use crate::matrix::Matrix;
 use crate::vector::Vector;
 use std::ops::Add;
 use std::ops::Sub;
@@ -13,6 +14,12 @@ pub struct Point {
 impl Point {
     pub fn new(x: f32, y: f32, z: f32) -> Point {
         Point { x, y, z, w: 1.0 }
+    }
+
+    pub fn to_matrix(&self) -> Matrix {
+        let mut m = Matrix::new(4, 1);
+        m.patch(vec![vec![self.x], vec![self.y], vec![self.z], vec![self.w]]);
+        m
     }
 }
 

@@ -24,23 +24,14 @@ struct Env {
 }
 
 fn main() {
-    let mut a = Matrix::new(4, 4);
-    a.patch(vec![
-        vec![-5.0, 2.0, 6.0, -8.0],
-        vec![1.0, -5.0, 1.0, 8.0],
-        vec![7.0, 7.0, -6.0, -7.0],
-        vec![1.0, -3.0, 7.0, 4.0],
-    ]);
-    let mut b = Matrix::new(4, 4);
-    b.patch(vec![
-        vec![6.0, 4.0, 4.0, 4.0],
-        vec![5.0, 5.0, 7.0, 6.0],
-        vec![4.0, -9.0, 3.0, -7.0],
-        vec![9.0, 1.0, 7.0, -6.0],
-    ]);
-    let c = &a * &b;
-    let c_mul_b_inverse = &c * &b.inverse();
-    println!("{:#?}", c_mul_b_inverse)
+    let m = Matrix::translation_3d(5.0, -3.0, 2.0);
+    let m_inverse = m.inverse();
+
+    let p = Point::new(-3.0, 4.0, 5.0);
+    let new_point = &m * &p;
+
+    let restoring_point = &m_inverse * &new_point;
+    println!("{:#?}", restoring_point);
 }
 
 #[allow(dead_code)]

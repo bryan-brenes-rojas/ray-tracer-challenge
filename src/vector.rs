@@ -1,3 +1,4 @@
+use crate::matrix::Matrix;
 use crate::point::Point;
 #[allow(unused_imports)]
 use crate::utils::EPSILON;
@@ -42,6 +43,12 @@ impl Vector {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
+    }
+
+    pub fn to_matrix(&self) -> Matrix {
+        let mut m = Matrix::new(4, 1);
+        m.patch(vec![vec![self.x], vec![self.y], vec![self.z], vec![self.w]]);
+        m
     }
 }
 
