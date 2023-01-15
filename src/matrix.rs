@@ -43,6 +43,14 @@ impl Matrix {
         matrix
     }
 
+    pub fn translation_3d(x: f32, y: f32, z: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        m.write_cell(0, 3, x);
+        m.write_cell(1, 3, y);
+        m.write_cell(2, 3, z);
+        m
+    }
+
     pub fn get_cell(&self, row: usize, col: usize) -> f32 {
         self.matrix[row][col]
     }
@@ -563,5 +571,13 @@ mod tests {
         let c = &a * &b;
         let c_mul_b_inverse = &c * &b.inverse();
         assert_eq!(c_mul_b_inverse, a);
+    }
+
+    #[test]
+    fn should_create_translation_matrix_3d() {
+        let m = Matrix::translation_3d(1.0, 2.0, 3.0);
+        assert_eq!(m.get_cell(0, 3), 1.0);
+        assert_eq!(m.get_cell(1, 3), 2.0);
+        assert_eq!(m.get_cell(2, 3), 3.0);
     }
 }
