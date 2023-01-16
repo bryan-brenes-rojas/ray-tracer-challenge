@@ -53,6 +53,14 @@ impl Matrix {
         m
     }
 
+    pub fn scaling_3d(x: f32, y: f32, z: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        m.write_cell(0, 0, x);
+        m.write_cell(1, 1, y);
+        m.write_cell(2, 2, z);
+        m
+    }
+
     pub fn get_cell(&self, row: usize, col: usize) -> f32 {
         self.matrix[row][col]
     }
@@ -611,7 +619,7 @@ mod tests {
     }
 
     #[test]
-    fn should_multiply_matrix_with_point() {
+    fn should_translate_a_point() {
         let m = Matrix::translation_3d(5.0, -3.0, 2.0);
         let p = Point::new(-3.0, 4.0, 5.0);
         let new_point = &m * &p;
@@ -637,13 +645,52 @@ mod tests {
     }
 
     #[test]
-    fn should_multiply_matrix_with_vector() {
+    fn should_translate_a_vector() {
         let m = Matrix::translation_3d(5.0, -3.0, 2.0);
         let v = Vector::new(-3.0, 4.0, 5.0);
         let new_vector = &m * &v;
         assert_eq!(new_vector.x, -3.0);
         assert_eq!(new_vector.y, 4.0);
         assert_eq!(new_vector.z, 5.0);
+        assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_scale_a_point() {
+        let m = Matrix::scaling_3d(2.0, 3.0, 4.0);
+        let p = Point::new(-4.0, 6.0, 8.0);
+        let new_point = &m * &p;
+        assert_eq!(new_point.x, -8.0);
+        assert_eq!(new_point.y, 18.0);
+        assert_eq!(new_point.z, 32.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_revert_point_scaling() {
+        let m = Matrix::scaling_3d(2.0, 3.0, 4.0);
+        let m_inverse = m.inverse();
+
+        let p = Point::new(-4.0, 6.0, 8.0);
+        let new_point = &m * &p;
+
+        let restoring_point = &m_inverse * &new_point;
+        assert_eq!(restoring_point.x, -4.0);
+        assert_eq!(restoring_point.y, 6.0);
+        assert_eq!(restoring_point.z, 8.0);
+        assert_eq!(restoring_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_scale_a_vector() {
+        let m = Matrix::scaling_3d(2.0, 3.0, 4.0);
+
+        let v = Vector::new(-4.0, 6.0, 8.0);
+        let new_vector = &m * &v;
+
+        assert_eq!(new_vector.x, -8.0);
+        assert_eq!(new_vector.y, 18.0);
+        assert_eq!(new_vector.z, 32.0);
         assert_eq!(new_vector.w, 0.0);
     }
 }

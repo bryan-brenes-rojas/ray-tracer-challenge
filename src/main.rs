@@ -24,14 +24,15 @@ struct Env {
 }
 
 fn main() {
-    let m = Matrix::translation_3d(5.0, -3.0, 2.0);
+    let m = Matrix::scaling_3d(2.0, 3.0, 4.0);
     let m_inverse = m.inverse();
 
-    let p = Point::new(-3.0, 4.0, 5.0);
+    let p = Point::new(-4.0, 6.0, 8.0);
     let new_point = &m * &p;
 
     let restoring_point = &m_inverse * &new_point;
-    println!("{:#?}", restoring_point);
+    println!("new point: {:#?}", new_point);
+    println!("restoration: {:#?}", restoring_point);
 }
 
 #[allow(dead_code)]
