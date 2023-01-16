@@ -61,6 +61,33 @@ impl Matrix {
         m
     }
 
+    pub fn rotate_x_3d(rad: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        m.write_cell(1, 1, rad.cos());
+        m.write_cell(1, 2, -rad.sin());
+        m.write_cell(2, 1, rad.sin());
+        m.write_cell(2, 2, rad.cos());
+        m
+    }
+
+    pub fn rotate_y_3d(rad: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        m.write_cell(0, 0, rad.cos());
+        m.write_cell(0, 2, rad.sin());
+        m.write_cell(2, 0, -rad.sin());
+        m.write_cell(2, 2, rad.cos());
+        m
+    }
+
+    pub fn rotate_z_3d(rad: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        m.write_cell(0, 0, rad.cos());
+        m.write_cell(0, 1, -rad.sin());
+        m.write_cell(1, 0, rad.sin());
+        m.write_cell(1, 1, rad.cos());
+        m
+    }
+
     pub fn get_cell(&self, row: usize, col: usize) -> f32 {
         self.matrix[row][col]
     }
@@ -306,6 +333,8 @@ impl PartialEq for Matrix {
 
 #[cfg(test)]
 mod tests {
+    use std::f32::consts::PI;
+
     use super::*;
 
     #[test]
@@ -692,5 +721,41 @@ mod tests {
         assert_eq!(new_vector.y, 18.0);
         assert_eq!(new_vector.z, 32.0);
         assert_eq!(new_vector.w, 0.0);
+    }
+
+    #[test]
+    fn should_rotate_x_axis() {
+        let transform = Matrix::rotate_x_3d(PI / 2.0);
+        let p = Point::new(0.0, 1.0, 0.0);
+        let new_point = &transform * &p;
+
+        assert_eq!((new_point.x - 0.0).abs() < EPSILON, true);
+        assert_eq!((new_point.y - 0.0).abs() < EPSILON, true);
+        assert_eq!((new_point.z - 1.0).abs() < EPSILON, true);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_rotate_y_axis() {
+        let transform = Matrix::rotate_y_3d(PI / 2.0);
+        let p = Point::new(0.0, 0.0, 1.0);
+        let new_point = &transform * &p;
+
+        assert_eq!((new_point.x - 1.0).abs() < EPSILON, true);
+        assert_eq!((new_point.y - 0.0).abs() < EPSILON, true);
+        assert_eq!((new_point.z - 0.0).abs() < EPSILON, true);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_rotate_z_axis() {
+        let transform = Matrix::rotate_z_3d(PI / 2.0);
+        let p = Point::new(0.0, 1.0, 0.0);
+        let new_point = &transform * &p;
+
+        assert_eq!((new_point.x - -1.0).abs() < EPSILON, true);
+        assert_eq!((new_point.y - 0.0).abs() < EPSILON, true);
+        assert_eq!((new_point.z - 0.0).abs() < EPSILON, true);
+        assert_eq!(new_point.w, 1.0);
     }
 }

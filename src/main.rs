@@ -5,6 +5,8 @@ mod point;
 mod utils;
 mod vector;
 
+use std::f32::consts::PI;
+
 use canvas::Canvas;
 use color::Color;
 use matrix::*;
@@ -24,15 +26,11 @@ struct Env {
 }
 
 fn main() {
-    let m = Matrix::scaling_3d(2.0, 3.0, 4.0);
-    let m_inverse = m.inverse();
+    let transform = Matrix::rotate_z_3d(PI / 2.0);
+    let p = Point::new(0.0, 1.0, 0.0);
+    let new_point = &transform * &p;
 
-    let p = Point::new(-4.0, 6.0, 8.0);
-    let new_point = &m * &p;
-
-    let restoring_point = &m_inverse * &new_point;
     println!("new point: {:#?}", new_point);
-    println!("restoration: {:#?}", restoring_point);
 }
 
 #[allow(dead_code)]
