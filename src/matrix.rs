@@ -882,6 +882,7 @@ mod tests {
         let c = Matrix::translation_3d(10.0, 5.0, 7.0);
 
         let t = &(&c * &b) * &a;
+        // let t2 = c.mul(&b).mul(&a);
         let p2 = &t * &p;
         assert_eq!((p2.x - 15.0).abs() < EPSILON, true);
         assert_eq!((p2.y - 0.0).abs() < EPSILON, true);
