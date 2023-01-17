@@ -844,4 +844,48 @@ mod tests {
         assert_eq!(new_point.z, 7.0);
         assert_eq!(new_point.w, 1.0);
     }
+
+    #[test]
+    fn transform_chaining() {
+        let p = Point::new(1.0, 0.0, 1.0);
+        let r = Matrix::rotate_x_3d(PI / 2.0);
+        let sc = Matrix::scaling_3d(5.0, 5.0, 5.0);
+        let trans = Matrix::translation_3d(10.0, 5.0, 7.0);
+
+        // applying rotation
+        let p2 = &r * &p;
+        assert_eq!((p2.x - 1.0).abs() < EPSILON, true);
+        assert_eq!((p2.y - -1.0).abs() < EPSILON, true);
+        assert_eq!((p2.z - 0.0).abs() < EPSILON, true);
+        assert_eq!(p2.w, 1.0);
+
+        // applying scaling
+        let p3 = &sc * &p2;
+        assert_eq!((p3.x - 5.0).abs() < EPSILON, true);
+        assert_eq!((p3.y - -5.0).abs() < EPSILON, true);
+        assert_eq!((p3.z - 0.0).abs() < EPSILON, true);
+        assert_eq!(p3.w, 1.0);
+
+        // applying translation
+        let p4 = &trans * &p3;
+        assert_eq!((p4.x - 15.0).abs() < EPSILON, true);
+        assert_eq!((p4.y - 0.0).abs() < EPSILON, true);
+        assert_eq!((p4.z - 7.0).abs() < EPSILON, true);
+        assert_eq!(p4.w, 1.0);
+    }
+
+    #[test]
+    fn chaining_must_apply_in_reverse() {
+        let p = Point::new(1.0, 0.0, 1.0);
+        let a = Matrix::rotate_x_3d(PI / 2.0);
+        let b = Matrix::scaling_3d(5.0, 5.0, 5.0);
+        let c = Matrix::translation_3d(10.0, 5.0, 7.0);
+
+        let t = &(&c * &b) * &a;
+        let p2 = &t * &p;
+        assert_eq!((p2.x - 15.0).abs() < EPSILON, true);
+        assert_eq!((p2.y - 0.0).abs() < EPSILON, true);
+        assert_eq!((p2.z - 7.0).abs() < EPSILON, true);
+        assert_eq!(p2.w, 1.0);
+    }
 }

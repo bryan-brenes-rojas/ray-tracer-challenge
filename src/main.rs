@@ -26,11 +26,23 @@ struct Env {
 }
 
 fn main() {
-    let transform = Matrix::rotate_z_3d(PI / 2.0);
-    let p = Point::new(0.0, 1.0, 0.0);
-    let new_point = &transform * &p;
+    let p = Point::new(1.0, 0.0, 1.0);
+    let r = Matrix::rotate_x_3d(PI / 2.0);
+    let sc = Matrix::scaling_3d(5.0, 5.0, 5.0);
+    let trans = Matrix::translation_3d(10.0, 5.0, 5.0);
+    // applying rotation
+    let p2 = &r * &p;
 
-    println!("new point: {:#?}", new_point);
+    // applying scaling
+    let p3 = &sc * &p2;
+
+    // applying translation
+    let p4 = &trans * &p3;
+
+    println!("new point: {:#?}", p);
+    println!("new point: {:#?}", p2);
+    println!("new point: {:#?}", p3);
+    println!("new point: {:#?}", p4);
 }
 
 #[allow(dead_code)]
