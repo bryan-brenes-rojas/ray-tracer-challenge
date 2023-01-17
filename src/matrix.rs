@@ -88,6 +88,20 @@ impl Matrix {
         m
     }
 
+    pub fn shear_3d(x_y: f32, x_z: f32, y_x: f32, y_z: f32, z_x: f32, z_y: f32) -> Matrix {
+        let mut m = Matrix::identity(4);
+        // x
+        m.write_cell(0, 1, x_y);
+        m.write_cell(0, 2, x_z);
+        // y
+        m.write_cell(1, 0, y_x);
+        m.write_cell(1, 2, y_z);
+        // z
+        m.write_cell(2, 0, z_x);
+        m.write_cell(2, 1, z_y);
+        m
+    }
+
     pub fn get_cell(&self, row: usize, col: usize) -> f32 {
         self.matrix[row][col]
     }
@@ -756,6 +770,78 @@ mod tests {
         assert_eq!((new_point.x - -1.0).abs() < EPSILON, true);
         assert_eq!((new_point.y - 0.0).abs() < EPSILON, true);
         assert_eq!((new_point.z - 0.0).abs() < EPSILON, true);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_x_y() {
+        let transform = Matrix::shear_3d(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 5.0);
+        assert_eq!(new_point.y, 3.0);
+        assert_eq!(new_point.z, 4.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_x_z() {
+        let transform = Matrix::shear_3d(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 6.0);
+        assert_eq!(new_point.y, 3.0);
+        assert_eq!(new_point.z, 4.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_y_x() {
+        let transform = Matrix::shear_3d(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 5.0);
+        assert_eq!(new_point.z, 4.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_y_z() {
+        let transform = Matrix::shear_3d(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 7.0);
+        assert_eq!(new_point.z, 4.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_z_x() {
+        let transform = Matrix::shear_3d(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 3.0);
+        assert_eq!(new_point.z, 6.0);
+        assert_eq!(new_point.w, 1.0);
+    }
+
+    #[test]
+    fn should_shear_transform_z_y() {
+        let transform = Matrix::shear_3d(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let new_point = &transform * &p;
+
+        assert_eq!(new_point.x, 2.0);
+        assert_eq!(new_point.y, 3.0);
+        assert_eq!(new_point.z, 7.0);
         assert_eq!(new_point.w, 1.0);
     }
 }
