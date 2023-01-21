@@ -1,33 +1,25 @@
 mod canvas;
+mod clock_challenge;
 mod color;
 mod matrix;
 mod point;
 mod projectile_challenge;
+mod ray;
+mod sphere;
 mod utils;
 mod vector;
+mod intersection;
+mod object;
 
-use std::f32::consts::PI;
-use canvas::Canvas;
-use color::Color;
-use matrix::*;
+use intersection::Intersection;
 use point::Point;
-use rand::Rng;
 use vector::Vector;
-
-use crate::utils::paint_square;
+use sphere::Sphere;
+use ray::Ray;
 
 fn main() {
-    let mut canvas = Canvas::new(1000, 1000);
-    let clock_width = 200.0;
-    let ticks = 12.0;
-    let angle_step = (2.0 * PI) / ticks;
-
-    for i in 0..ticks as i32 {
-        let p = Point::new(clock_width, 0.0, 0.0);
-        let rotation = Matrix::rotate_z_3d(angle_step * i as f32);
-        let translation = Matrix::translation_3d(500.0, 500.0, 0.0);
-        let new_point = &(&translation * &rotation) * &p;
-        paint_square(&mut canvas, new_point.x as i32, new_point.y as i32, 5);
-    }
-    canvas.to_ppm();
+    let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+    let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+    let i = Intersection::new(3.0, sphere);
+    println!("{:#?}", i.object.radius);
 }

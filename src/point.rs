@@ -3,7 +3,7 @@ use crate::vector::Vector;
 use std::ops::Add;
 use std::ops::Sub;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
