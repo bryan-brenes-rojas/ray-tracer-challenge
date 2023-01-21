@@ -1,6 +1,7 @@
 use crate::{point::Point, vector::Vector, matrix::Matrix};
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct Ray {
     pub origin: Point,
     pub direction: Vector,

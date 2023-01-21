@@ -1,1 +1,1 @@
-pub trait Object {}
+pub trait Object { }

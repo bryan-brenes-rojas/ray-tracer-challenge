@@ -19,7 +19,7 @@ mod tests {
 
     #[test]
     fn should_create_new_intersection() {
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersection = Intersection::new(3.0, sphere);
         assert_eq!(intersection.t, 3.0);
         assert_eq!(intersection.object.radius, 1.0);

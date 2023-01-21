@@ -37,9 +37,13 @@ impl Sphere {
     /// Always return the intersections vector sorted
     pub fn intersections(&self, ray: &Ray) -> Vec<Intersection<Sphere>> {
         let mut intersections: Vec<Intersection<Sphere>> = vec![];
-        let sphere_to_ray = &ray.origin - &self.origin;
-        let a = ray.direction.dot_product(&ray.direction);
-        let b = 2.0 * ray.direction.dot_product(&sphere_to_ray);
+        let transformed_ray = ray.transform(&self.transform.inverse());
+
+        let sphere_to_ray = &transformed_ray.origin - &self.origin;
+        let a = transformed_ray
+            .direction
+            .dot_product(&transformed_ray.direction);
+        let b = 2.0 * transformed_ray.direction.dot_product(&sphere_to_ray);
         let c = &sphere_to_ray.dot_product(&sphere_to_ray) - (&self.radius.powf(2.0));
         let discriminant = b.powf(2.0) - 4.0 * a * c;
         if discriminant >= 0.0 {
@@ -135,5 +139,31 @@ mod tests {
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections[0].t, -6.0);
         assert_eq!(intersections[1].t, -4.0);
+    }
+
+    #[test]
+    fn should_get_intersection_with_transform() {
+        let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let sphere = Sphere::new(
+            Point::new(0.0, 0.0, 0.0),
+            1.0,
+            Some(Matrix::scaling_3d(2.0, 2.0, 2.0)),
+        );
+        let intersections = sphere.intersections(&ray);
+        assert_eq!(intersections.len(), 2);
+        assert_eq!(intersections[0].t, 3.0);
+        assert_eq!(intersections[1].t, 7.0);
+    }
+
+    #[test]
+    fn should_get_intersection_with_transform_2() {
+        let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let sphere = Sphere::new(
+            Point::new(0.0, 0.0, 0.0),
+            1.0,
+            Some(Matrix::translation_3d(5.0, 0.0, 0.0)),
+        );
+        let intersections = sphere.intersections(&ray);
+        assert_eq!(intersections.len(), 0);
     }
 }
