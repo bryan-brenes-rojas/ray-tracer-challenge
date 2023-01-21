@@ -4,6 +4,7 @@ use crate::matrix::Matrix;
 use std::f32::consts::PI;
 use crate::utils::paint_square;
 
+#[allow(dead_code)]
 pub fn clock_drawing() {
     let mut canvas = Canvas::new(1000, 1000);
     let clock_width = 200.0;

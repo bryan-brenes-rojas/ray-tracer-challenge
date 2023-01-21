@@ -1,15 +1,16 @@
 use std::cmp::Ordering;
 
-use crate::{intersection::Intersection, object::Object, point::Point, ray::Ray, vector::Vector};
+use crate::{intersection::Intersection, object::Object, point::Point, ray::Ray, matrix::Matrix};
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct Sphere {
     pub origin: Point,
     pub radius: f32,
+    // pub transform: Matrix,
 }
 
-impl Copy for Sphere { }
+impl Copy for Sphere {}
 
 impl Clone for Sphere {
     fn clone(&self) -> Self {
@@ -23,6 +24,7 @@ impl Sphere {
         Sphere { origin, radius }
     }
 
+    /// Always return the intersections vector sorted
     pub fn intersections(&self, ray: &Ray) -> Vec<Intersection<Sphere>> {
         let mut intersections: Vec<Intersection<Sphere>> = vec![];
         let sphere_to_ray = &ray.origin - &self.origin;
@@ -47,12 +49,25 @@ impl Sphere {
         });
         intersections
     }
+
+    pub fn hit<'a>(
+        &self,
+        intersections: &'a Vec<Intersection<Sphere>>,
+    ) -> Option<&'a Intersection<Sphere>> {
+        for intersec in intersections {
+            if intersec.t >= 0.0 {
+                return Some(&intersec);
+            }
+        }
+        None
+    }
 }
 
 impl Object for Sphere {}
 
 #[cfg(test)]
 mod tests {
+    use crate::vector::Vector;
     use super::*;
 
     #[test]

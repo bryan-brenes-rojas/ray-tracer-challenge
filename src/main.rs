@@ -11,7 +11,6 @@ mod vector;
 mod intersection;
 mod object;
 
-use intersection::Intersection;
 use point::Point;
 use vector::Vector;
 use sphere::Sphere;
@@ -20,6 +19,7 @@ use ray::Ray;
 fn main() {
     let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
     let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
-    let i = Intersection::new(3.0, sphere);
-    println!("{:#?}", i.object.radius);
+    let i = sphere.intersections(&ray);
+    let hit = sphere.hit(&i);
+    println!("{:#?}", hit);
 }
