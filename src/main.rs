@@ -18,7 +18,7 @@ use ray::Ray;
 
 fn main() {
     let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-    let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+    let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
     let i = sphere.intersections(&ray);
     let hit = sphere.hit(&i);
     println!("{:#?}", hit);

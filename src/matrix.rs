@@ -13,6 +13,16 @@ pub struct Matrix {
     pub col_count: usize,
 }
 
+impl Clone for Matrix {
+    fn clone(&self) -> Self {
+        Matrix {
+            matrix: self.matrix.clone(),
+            row_count: self.row_count,
+            col_count: self.col_count,
+        }
+    }
+}
+
 #[allow(dead_code)]
 impl Matrix {
     pub fn new(row_num: usize, col_num: usize) -> Self {

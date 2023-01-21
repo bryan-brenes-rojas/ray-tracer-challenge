@@ -1,27 +1,37 @@
 use std::cmp::Ordering;
 
-use crate::{intersection::Intersection, object::Object, point::Point, ray::Ray, matrix::Matrix};
+use crate::{intersection::Intersection, matrix::Matrix, object::Object, point::Point, ray::Ray};
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct Sphere {
     pub origin: Point,
     pub radius: f32,
-    // pub transform: Matrix,
+    pub transform: Matrix,
 }
-
-impl Copy for Sphere {}
 
 impl Clone for Sphere {
     fn clone(&self) -> Self {
-        *self
+        Sphere {
+            origin: self.origin,
+            radius: self.radius,
+            transform: self.transform.clone(),
+        }
     }
 }
 
 #[allow(dead_code)]
 impl Sphere {
-    pub fn new(origin: Point, radius: f32) -> Self {
-        Sphere { origin, radius }
+    pub fn new(origin: Point, radius: f32, transform: Option<Matrix>) -> Self {
+        let t = match transform {
+            Some(t) => t,
+            None => Matrix::identity(4),
+        };
+        Sphere {
+            origin,
+            radius,
+            transform: t,
+        }
     }
 
     /// Always return the intersections vector sorted
@@ -35,8 +45,8 @@ impl Sphere {
         if discriminant >= 0.0 {
             let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
             let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
-            intersections.push(Intersection::new(t1, *self));
-            intersections.push(Intersection::new(t2, *self));
+            intersections.push(Intersection::new(t1, self.clone()));
+            intersections.push(Intersection::new(t2, self.clone()));
         }
         intersections.sort_by(|a, b| {
             if a.t < b.t {
@@ -67,12 +77,12 @@ impl Object for Sphere {}
 
 #[cfg(test)]
 mod tests {
-    use crate::vector::Vector;
     use super::*;
+    use crate::vector::Vector;
 
     #[test]
     fn should_create_sphere() {
-        let s = Sphere::new(Point::new(1.0, 2.0, 3.0), 1.0);
+        let s = Sphere::new(Point::new(1.0, 2.0, 3.0), 1.0, None);
         assert_eq!(s.origin.x, 1.0);
         assert_eq!(s.origin.y, 2.0);
         assert_eq!(s.origin.z, 3.0);
@@ -82,7 +92,7 @@ mod tests {
     #[test]
     fn should_get_intersection_points() {
         let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections[0].t, 4.0);
@@ -92,7 +102,7 @@ mod tests {
     #[test]
     fn should_get_intersection_tangent_points() {
         let ray = Ray::new(Point::new(0.0, 1.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections[0].t, 5.0);
@@ -102,7 +112,7 @@ mod tests {
     #[test]
     fn should_get_intersection_missing_points() {
         let ray = Ray::new(Point::new(0.0, 2.0, -5.0), Vector::new(0.0, 0.0, 1.0));
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 0);
     }
@@ -110,7 +120,7 @@ mod tests {
     #[test]
     fn should_get_intersection_inside_sphere_points() {
         let ray = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections[0].t, -1.0);
@@ -120,7 +130,7 @@ mod tests {
     #[test]
     fn should_get_intersection_behind_sphere_points() {
         let ray = Ray::new(Point::new(0.0, 0.0, 5.0), Vector::new(0.0, 0.0, 1.0));
-        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0);
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 2);
         assert_eq!(intersections[0].t, -6.0);
