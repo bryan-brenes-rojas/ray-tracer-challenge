@@ -50,6 +50,10 @@ impl Vector {
         m.patch(vec![vec![self.x], vec![self.y], vec![self.z], vec![self.w]]);
         m
     }
+
+    pub fn reflect(&self, normal: &Vector) -> Vector {
+        self - &(normal * (self.dot_product(normal) * 2.0))
+    }
 }
 
 // vector + vector
@@ -242,5 +246,24 @@ mod tests {
         assert_eq!(dot_product_2.y, -2.0);
         assert_eq!(dot_product_2.z, 1.0);
         assert_eq!(dot_product_2.w, 0.0);
+    }
+
+    #[test]
+    fn should_get_reflected_vector() {
+        let v = Vector::new(1.0, -1.0, 0.0);
+        let n = Vector::new(0.0, 1.0, 0.0);
+        let reflected = v.reflect(&n);
+        assert_eq!(reflected.x, 1.0);
+        assert_eq!(reflected.y, 1.0);
+        assert_eq!(reflected.z, 0.0);
+        assert_eq!(reflected.w, 0.0);
+
+        let v = Vector::new(0.0, -1.0, 0.0);
+        let n = Vector::new(2.0f32.sqrt() / 2.0, 2.0f32.sqrt() / 2.0, 0.0);
+        let reflected = v.reflect(&n);
+        assert!(reflected.x -  1.0 < EPSILON);
+        assert!(reflected.y -  0.0 < EPSILON);
+        assert!(reflected.z -  0.0 < EPSILON);
+        assert!(reflected.w -  0.0 < EPSILON);
     }
 }

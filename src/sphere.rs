@@ -1,6 +1,9 @@
 use std::cmp::Ordering;
 
-use crate::{intersection::Intersection, matrix::Matrix, object::Object, point::Point, ray::Ray};
+use crate::{
+    intersection::Intersection, matrix::Matrix, object::Object, point::Point, ray::Ray,
+    vector::Vector,
+};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -77,12 +80,23 @@ impl Sphere {
     }
 }
 
-impl Object for Sphere {}
+impl Object for Sphere {
+    fn normal_at(&self, point: &Point) -> Vector {
+        let transformed_point = &self.transform.inverse() * point;
+        let transformed_vector = (&transformed_point - &self.origin).normalize();
+        let mut world_vector =
+            (&self.transform.transpose().inverse() * &transformed_vector).normalize();
+        world_vector.w = 0.0;
+        world_vector
+    }
+}
 
 #[cfg(test)]
 mod tests {
+    use std::f32::consts::PI;
+
     use super::*;
-    use crate::vector::Vector;
+    use crate::{utils::EPSILON, vector::Vector};
 
     #[test]
     fn should_create_sphere() {
@@ -165,5 +179,52 @@ mod tests {
         );
         let intersections = sphere.intersections(&ray);
         assert_eq!(intersections.len(), 0);
+    }
+
+    #[test]
+    fn should_get_the_normal() {
+        let sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 1.0, None);
+        let normal = sphere.normal_at(&Point::new(1.0, 0.0, 0.0));
+        assert_eq!(normal.x, 1.0);
+        assert_eq!(normal.y, 0.0);
+        assert_eq!(normal.z, 0.0);
+        assert_eq!(normal.w, 0.0);
+
+        let normal = sphere.normal_at(&Point::new(0.0, 1.0, 0.0));
+        assert_eq!(normal.x, 0.0);
+        assert_eq!(normal.y, 1.0);
+        assert_eq!(normal.z, 0.0);
+        assert_eq!(normal.w, 0.0);
+
+        let normal = sphere.normal_at(&Point::new(0.0, 0.0, 1.0));
+        assert_eq!(normal.x, 0.0);
+        assert_eq!(normal.y, 0.0);
+        assert_eq!(normal.z, 1.0);
+        assert_eq!(normal.w, 0.0);
+    }
+
+    #[test]
+    fn should_get_the_normal_of_tranformed_sphere() {
+        let sphere = Sphere::new(
+            Point::new(0.0, 0.0, 0.0),
+            1.0,
+            Some(Matrix::translation_3d(0.0, 1.0, 0.0)),
+        );
+        let normal = sphere.normal_at(&Point::new(0.0, 1.70711, -0.70711));
+        assert!((normal.x - 0.0).abs() < EPSILON);
+        assert!((normal.y - 0.70711).abs() < EPSILON);
+        assert!((normal.z - -0.70711).abs() < EPSILON);
+        assert!((normal.w - 0.0).abs() < EPSILON);
+
+        let sphere = Sphere::new(
+            Point::new(0.0, 0.0, 0.0),
+            1.0,
+            Some(&Matrix::scaling_3d(1.0, 0.5, 1.0) * &Matrix::rotate_z_3d(PI / 5.0)),
+        );
+        let normal = sphere.normal_at(&Point::new(0.0, 2.0f32.sqrt() / 2.0, -2.0f32.sqrt() / 2.0));
+        assert!((normal.x - 0.0).abs() < EPSILON);
+        assert!((normal.y - 0.97014).abs() < EPSILON);
+        assert!((normal.z - -0.24254).abs() < EPSILON);
+        assert!((normal.w - 0.0).abs() < EPSILON);
     }
 }
